@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -12,6 +14,54 @@ class LoginTemplateView(TemplateView):
 
 class RegisterTemplateView(TemplateView):
     template_name = 'main/register.html'
+
+    def post(self, request):
+        email            = request.POST.get('username')
+        password         = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Check for empty fields
+        if not email or not password or not confirm_password:
+            print(1);
+            return render(request, self.template_name, {
+                'error_message': "Please fill in all the fields.",
+            })
+
+        # Check for valid email
+        try:
+            validate_email(email)
+        except:
+            return render(request, self.template_name, {
+                'error_message': "The entered email is invalid.",
+            })
+
+        # Check for unused email
+        if User.objects.filter(email=email).count() > 0:
+            return render(request, self.template_name, {
+                'error_message': "An account with this email already exists.",
+            })
+
+        # Check for password confirmation
+        if password != confirm_password:
+            return render(request, self.template_name, {
+                'error_message': "Password and confirmation doesn’t match.",
+            })
+
+        try:
+            user = User.objects.create_user(email=email, password=password)
+            user.first_name = email.split('@')[0]
+            user.last_name = ''
+            user.level = User.Level.NEWBIE
+            user.save()
+        except Exception as e:
+            return render(request, self.template_name, {
+                # 'error_message': "An error occured.",
+                'error_message': e,
+            })
+
+        messages.add_message(request, messages.SUCCESS, "Account successfully created, please log in.")
+
+        return HttpResponseRedirect(reverse('login'))
 
 class ResetPwdFormTemplateView(TemplateView):
     template_name = 'main/reset_pwd_form.html'
