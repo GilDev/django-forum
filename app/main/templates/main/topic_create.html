@@ -62,10 +62,12 @@
                     <i class="fa fa-arrow-left mr-2"></i> Back
                 </a>
 
-                {% if error_message %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error_message }}
-                    </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 {% endif %}
 
                 <h3>Create new Topic</h3>

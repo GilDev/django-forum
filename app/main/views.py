@@ -22,30 +22,25 @@ class RegisterTemplateView(TemplateView):
 
         # Check for empty fields
         if not email or not password or not confirm_password:
-            print(1);
-            return render(request, self.template_name, {
-                'error_message': "Please fill in all the fields.",
-            })
+            messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
+            return render(request, self.template_name)
 
         # Check for valid email
         try:
             validate_email(email)
         except:
-            return render(request, self.template_name, {
-                'error_message': "The entered email is invalid.",
-            })
+            messages.add_message(request, messages.ERROR, "The entered email is invalid.")
+            return render(request, self.template_name)
 
         # Check for unused email
         if User.objects.filter(email=email).count() > 0:
-            return render(request, self.template_name, {
-                'error_message': "An account with this email already exists.",
-            })
+            messages.add_message(request, messages.ERROR, "An account with this email already exists.")
+            return render(request, self.template_name)
 
         # Check for password confirmation
         if password != confirm_password:
-            return render(request, self.template_name, {
-                'error_message': "Password and confirmation doesn’t match.",
-            })
+            messages.add_message(request, messages.ERROR, "Password and confirmation doesn’t match.")
+            return render(request, self.template_name)
 
         try:
             user = User.objects.create_user(email=email, password=password)
@@ -54,10 +49,8 @@ class RegisterTemplateView(TemplateView):
             user.level = User.Level.NEWBIE
             user.save()
         except Exception as e:
-            return render(request, self.template_name, {
-                # 'error_message': "An error occured.",
-                'error_message': e,
-            })
+            messages.add_message(request, messages.ERROR, "An error occured: " + e)
+            return render(request, self.template_name)
 
         messages.add_message(request, messages.SUCCESS, "Account successfully created, please log in.")
 
@@ -101,9 +94,11 @@ class TopicDetailTemplateView(TemplateView):
             )
             new_comment.save()
 
+            messages.add_message(request, messages.SUCCESS, "New comment created successfully.")
+
             return HttpResponseRedirect(reverse('topic_detail', args=(pk,)))
         else:
-            context['error_message'] = "Please enter a reply message."
+            messages.add_message(request, messages.ERROR, "Please enter a comment before sending.")
             return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
@@ -132,11 +127,12 @@ class TopicCreateTemplateView(TemplateView):
             )
             new_topic.save()
 
+            messages.add_message(request, messages.SUCCESS, "New topic created successfully.")
+
             return HttpResponseRedirect(reverse('topic_detail', args=(new_topic.id,)))
         else:
-            return render(request, self.template_name, {
-                'error_message': "Please enter a title and a message.",
-            })
+            messages.add_message(request, messages.ERROR, "Please enter a title and a message.")
+            return render(request, self.template_name)
 
 class ReactTemplateView(TemplateView):
     template_name = 'main/react.html'
