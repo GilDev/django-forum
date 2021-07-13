@@ -1,5 +1,7 @@
 from django.contrib import messages
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -11,7 +13,7 @@ class HomeTemplateView(TemplateView):
     template_name = 'main/home.html'
 
     def get(self, request):
-        return HttpResponseRedirect(reverse('login'))
+        return HttpResponseRedirect(reverse('topic_list'))
 
 class LoginTemplateView(TemplateView):
     template_name = 'main/login.html'
@@ -33,6 +35,12 @@ class LoginTemplateView(TemplateView):
         else:
             messages.add_message(request, messages.ERROR, "Incorrect credentials.")
             return render(request, self.template_name)
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.add_message(request, messages.SUCCESS, "Successfully logged out.")
+    return HttpResponseRedirect(reverse('login'))
 
 class RegisterTemplateView(TemplateView):
     template_name = 'main/register.html'
@@ -90,10 +98,10 @@ class ResetPwdConfirmTemplateView(TemplateView):
 class ResetPwdCompleteTemplateView(TemplateView):
     template_name = 'main/reset_pwd_complete.html'
 
-class ProfilTemplateView(TemplateView):
+class ProfilTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/profil.html'
 
-class TopicListTemplateView(TemplateView):
+class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
     # TODO: ajouter paramètre get “page” et récupérer seulement 10 topics par page
 
@@ -102,7 +110,7 @@ class TopicListTemplateView(TemplateView):
         context['topics'] = Topic.objects.order_by('-date')[:10]
         return context
 
-class TopicDetailTemplateView(TemplateView):
+class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_detail.html'
 
     def post(self, request, pk):
@@ -137,7 +145,7 @@ class TopicDetailTemplateView(TemplateView):
         return context
 
 
-class TopicCreateTemplateView(TemplateView):
+class TopicCreateTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_create.html'
 
     def post(self, request):

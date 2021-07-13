@@ -89,6 +89,7 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
+LOGIN_URL = 'login'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
