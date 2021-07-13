@@ -8,9 +8,11 @@
         <!-- Inner sidebar -->
         <div class="inner-sidebar">
             <!-- Inner sidebar header -->
-            <div class="inner-sidebar-header justify-content-center">
-                <button class="btn btn-primary has-icon btn-block" type="button">New topic</button>
-            </div>
+            <a href="{% url 'topic_create' %}">
+                <div class="inner-sidebar-header justify-content-center">
+                    <button class="btn btn-primary has-icon btn-block" type="button">New topic</button>
+                </div>
+            </a>
             <!-- /Inner sideba
             <!-- Inner sidebar body -->
             <div class="inner-sidebar-body p-0">

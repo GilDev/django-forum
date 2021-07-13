@@ -8,9 +8,11 @@
         <!-- Inner sidebar -->
         <div class="inner-sidebar">
             <!-- Inner sidebar header -->
-            <div class="inner-sidebar-header justify-content-center">
-                <button class="btn btn-primary has-icon btn-block" type="button">New topic</button>
-            </div>
+            <a href="{% url 'topic_create' %}">
+                <div class="inner-sidebar-header justify-content-center">
+                    <button class="btn btn-primary has-icon btn-block" type="button">New topic</button>
+                </div>
+            </a>
             <!-- /Inner sidebar header -->
 
             <!-- Inner sidebar body -->
@@ -56,7 +58,7 @@
 
             <!-- Forum Detail -->
             <div class="inner-main-body p-2 p-sm-3 forum-content">
-                <a href="javascript:void(0)" class="btn btn-light btn-sm mb-3 has-icon">
+                <a href="{% url 'topic_list' %}" class="btn btn-light btn-sm mb-3 has-icon">
                     <i class="fa fa-arrow-left mr-2"></i> Back
                 </a>
 
