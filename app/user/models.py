@@ -41,6 +41,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    class Level(models.TextChoices):
+        NEWBIE = 'NEW', 'Newbie'
+        PRO    = 'PRO', 'Pro'
+
     email = models.EmailField(
         verbose_name=_("Adresse Email"),
         max_length=255,
@@ -58,6 +62,11 @@ class User(AbstractUser):
     last_name = models.CharField(
         verbose_name=_("Nom"),
         max_length=255,
+    )
+    level = models.CharField(
+        max_length=3,
+        choices=Level.choices,
+        default=Level.NEWBIE,
     )
 
     username = None

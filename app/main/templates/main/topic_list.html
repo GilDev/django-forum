@@ -11,20 +11,15 @@
             <div class="inner-sidebar-header justify-content-center">
                 <button class="btn btn-primary has-icon btn-block" type="button">New topic</button>
             </div>
-            <!-- /Inner sidebar header -->
-
+            <!-- /Inner sideba
             <!-- Inner sidebar body -->
             <div class="inner-sidebar-body p-0">
                 <div class="p-3 h-100" data-simplebar="init">
                     <nav class="nav nav-pills nav-gap-y-1 flex-column">
-                        <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon active">
-                            All Threads
-                        </a>
+                        <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon active">All Threads</a>
                         <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon">Solved</a>
                         <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon">Unsolved</a>
-                        <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon">
-                            No replies yet
-                        </a>
+                        <a href="javascript:void(0)" class="nav-link nav-link-faded has-icon">No replies yet</a>
                     </nav>
                 </div>
             </div>
@@ -56,25 +51,25 @@
 
             <!-- Forum List -->
             <div class="inner-main-body p-2 p-sm-3 collapse forum-content show">
-                {% for i in '*****' %}
+                {% for topic in topics %}
                 <div class="card mb-2">
                     <div class="card-body p-2 p-sm-3">
                         <div class="media forum-item">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-circle"
+                            <img src="{{ topic.author.get_avatar_url }}" class="mr-3 rounded-circle"
                                 width="50" alt="User" />
                             <div class="media-body">
-                                <h6 class="text-body"><a class="text-dark" href="javascript:void(0)">Realtime fetching data</a></h6>
+                                <h6 class="text-body"><a class="text-dark" href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a></h6>
                                 <p class="text-secondary">
-                                    lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
+                                    {{ topic.message }}
                                 </p>
                                 <p class="text-muted">
-                                    <span class="text-secondary font-weight-bold">drewdan</span>
+                                    <span class="text-secondary font-weight-bold">{{ topic.author.get_fullname }}</span>
                                     replied
-                                    <span class="text-secondary font-weight-bold">13 minutes ago</span>
+                                    <span class="text-secondary font-weight-bold">{{ topic.date }}</span>
                                 </p>
                             </div>
                             <div class="text-muted small text-center align-self-center">
-                                <span><i class="far fa-comment ml-2"></i> 3</span>
+                                <span><i class="far fa-comment ml-2"></i> {{ topic.comment_set.count }}</span>
                             </div>
                         </div>
                     </div>

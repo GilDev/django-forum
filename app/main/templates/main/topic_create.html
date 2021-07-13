@@ -60,17 +60,24 @@
                     <i class="fa fa-arrow-left mr-2"></i> Back
                 </a>
 
+                {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
+                    </div>
+                {% endif %}
+
                 <h3>Create new Topic</h3>
                 <hr />
 
-                <form>
+                <form action="{% url 'topic_create' %}" method="post">
+                    {% csrf_token %}
                     <div class="form-group mb-2">
                         <label for="title" class="">Your title</label>
-                        <input type="text" class="form-control" id="title"/>
+                        <input type="text" class="form-control" id="title" name="title"/>
                     </div>
                     <div class="form-group mb-2">
                         <label for="description" class="">Your message</label>
-                        <textarea class="form-control" id="description" style="height: 145px;"></textarea>
+                        <textarea class="form-control" id="description" name="description" style="height: 145px;"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">Create</button>
                 </form>
