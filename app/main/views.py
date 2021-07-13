@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth import login, authenticate
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -9,8 +10,29 @@ from .models import Topic, Comment, User
 class HomeTemplateView(TemplateView):
     template_name = 'main/home.html'
 
+    def get(self, request):
+        return HttpResponseRedirect(reverse('login'))
+
 class LoginTemplateView(TemplateView):
     template_name = 'main/login.html'
+
+    def post(self, request):
+        email    = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Check for empty fields
+        if not email or not password:
+            messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
+            return render(request, self.template_name)
+
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            messages.add_message(request, messages.SUCCESS, "Successfully logged in.")
+            return HttpResponseRedirect(reverse('topic_list'))
+        else:
+            messages.add_message(request, messages.ERROR, "Incorrect credentials.")
+            return render(request, self.template_name)
 
 class RegisterTemplateView(TemplateView):
     template_name = 'main/register.html'
