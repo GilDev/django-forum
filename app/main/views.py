@@ -40,6 +40,22 @@ class TopicListTemplateView(TemplateView):
 class TopicDetailTemplateView(TemplateView):
     template_name = 'main/topic_detail.html'
 
+    def post(self, request, pk):
+        context = self.get_context_data()
+
+        if request.POST.get('reply'):
+            new_comment = Comment(
+                topic   = context['topic'],
+                message = request.POST.get('reply'),
+                author  = User.objects.first(), # TODO: Use the currently logged in user
+            )
+            new_comment.save()
+
+            return HttpResponseRedirect(reverse('topic_detail', args=(pk,)))
+        else:
+            context['error_message'] = "Please enter a reply message."
+            return render(request, self.template_name, context)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -53,6 +69,7 @@ class TopicDetailTemplateView(TemplateView):
         context['topic'] = topic
         return context
 
+
 class TopicCreateTemplateView(TemplateView):
     template_name = 'main/topic_create.html'
 
@@ -61,7 +78,7 @@ class TopicCreateTemplateView(TemplateView):
             new_topic = Topic(
                 title   = request.POST.get('title'),
                 message = request.POST.get('description'),
-                author  = User.objects.first(),
+                author  = User.objects.first(), # TODO: Use the currently logged in user
             )
             new_topic.save()
 
@@ -71,5 +88,5 @@ class TopicCreateTemplateView(TemplateView):
                 'error_message': "Please enter a title and a message.",
             })
 
-class ReactTempalteView(TemplateView):
+class ReactTemplateView(TemplateView):
     template_name = 'main/react.html'

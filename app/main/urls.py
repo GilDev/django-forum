@@ -13,10 +13,10 @@ main_urlpatterns = [
     path('profil/', main.views.ProfilTemplateView.as_view(), name='profil'),
     path('topics/', main.views.TopicListTemplateView.as_view(), name='topic_list'),
     # path('topics/<int:page>/', main.views.TopicListTemplateView.as_view(), name='topic_list'),
-    path('topics/topic_pk/', main.views.TopicDetailTemplateView.as_view(), name='topic_detail'),
+    #path('topics/topic_pk/', main.views.TopicDetailTemplateView.as_view(), name='topic_detail'),
     path('topics/topic_<int:pk>/', main.views.TopicDetailTemplateView.as_view(), name='topic_detail'),
     path('topics/new/', main.views.TopicCreateTemplateView.as_view(), name='topic_create'),
-    path('react/', main.views.ReactTempalteView.as_view(), name='react'),
+    path('react/', main.views.ReactTemplateView.as_view(), name='react'),
 ]
 
 urlpatterns = [

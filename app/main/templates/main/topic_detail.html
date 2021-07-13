@@ -110,12 +110,19 @@
                     </div>
                 </div>
                 {% endfor %}
-                {% if topic.commnts %}<hr />{% endif %}
+                {% if topic.comments %}<hr />{% endif %}
 
-                <form>
+                {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
+                    </div>
+                {% endif %}
+
+                <form action="{% url 'topic_detail' topic.id %}" method="post">
+                    {% csrf_token %}
                     <div class="form-group mb-2">
                         <label for="reply" class="">Your message</label>
-                        <textarea class="form-control" id="reply" style="height: 145px;"></textarea>
+                        <textarea class="form-control" id="reply" name="reply" style="height: 145px;"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">Send</button>
                 </form>
