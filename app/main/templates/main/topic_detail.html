@@ -70,9 +70,15 @@
                     <div class="card-body">
                         <div class="media forum-item">
                             <div class="card-link">
-                                <img src="{{ topic.author.get_avatar_url }}" class="rounded-circle"
-                                    width="50" alt="User" />
-                                <small class="d-block text-center text-muted">{{ topic.author.level }}</small>
+                                {% if topic.author == request.user %}
+                                <a href="{% url 'profile' %}">
+                                {% endif %}
+                                    <img src="{{ topic.author.get_avatar_url }}" class="rounded-circle"
+                                         width="50" alt="User" />
+                                    <small class="d-block text-center text-muted">{{ topic.author.level }}</small>
+                                {% if topic.author == request.user %}
+                                </a>
+                                {% endif %}
                             </div>
                             <div class="media-body ml-3">
                                 <span class="text-secondary">{{ topic.author.get_fullname }}</span>
@@ -96,11 +102,17 @@
                 <div class="card mb-2">
                     <div class="card-body">
                         <div class="media forum-item">
-                            <a href="javascript:void(0)" class="card-link">
-                                <img src="{{ comment.author.get_avatar_url }}" class="rounded-circle"
-                                    width="50" alt="User" />
-                                <small class="d-block text-center text-muted">{{ comment.author.level }}</small>
-                            </a>
+                            <div class="card-link">
+                                {% if topic.author == request.user %}
+                                <a href="{% url 'profile' %}">
+                                {% endif %}
+                                    <img src="{{ comment.author.get_avatar_url }}" class="rounded-circle"
+                                         width="50" alt="User" />
+                                    <small class="d-block text-center text-muted">{{ comment.author.level }}</small>
+                                {% if topic.author == request.user %}
+                                </a>
+                                {% endif %}
+                            </div>
                             <div class="media-body ml-3">
                                 <span class="text-secondary">{{ comment.author.get_fullname }}</span>
                                 <small class="text-muted ml-2">{{ comment.date }}</small>

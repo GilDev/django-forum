@@ -183,8 +183,8 @@ class ResetPwdConfirmTemplateView(TemplateView):
 class ResetPwdCompleteTemplateView(TemplateView):
     template_name = 'main/reset_pwd_complete.html'
 
-class ProfilTemplateView(LoginRequiredMixin, TemplateView):
-    template_name = 'main/profil.html'
+class ProfileTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'main/profile.html'
 
     def post(self, request):
         avatar     = request.FILES['profile_photo']

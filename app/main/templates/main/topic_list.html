@@ -65,8 +65,14 @@
                 <div class="card mb-2">
                     <div class="card-body p-2 p-sm-3">
                         <div class="media forum-item">
-                            <img src="{{ topic.author.get_avatar_url }}" class="mr-3 rounded-circle"
-                                width="50" alt="User" />
+                            {% if topic.author == request.user %}
+                            <a href="{% url 'profile' %}">
+                            {% endif %}
+                                <img src="{{ topic.author.get_avatar_url }}" class="mr-3 rounded-circle"
+                                     width="50" alt="User" />
+                            {% if topic.author == request.user %}
+                            </a>
+                            {% endif %}
                             <div class="media-body">
                                 <h6 class="text-body"><a class="text-dark" href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a></h6>
                                 <p class="text-secondary">

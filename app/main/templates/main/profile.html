@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extend_title %}Profil |{% endblock %}
+{% block extend_title %}Profile |{% endblock %}
 
 {% block content %}
 <div class="col-6 mx-auto pt-5">
@@ -14,8 +14,8 @@
     {% endif %}
 
     <div class="border rounded p-4">
-        <h3 class="mb-5 text-center">Profil</h3>
-        <form action="{% url 'profil' %}" method="post" enctype="multipart/form-data">
+        <h3 class="mb-5 text-center">Profile</h3>
+        <form action="{% url 'profile' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <div id="profile-container">
@@ -25,15 +25,15 @@
             </div>
 
             <div class="form-group">
-                <input type="text" name="username" autofocus="false" value="{{ user.email }}" class="form-control"
+                <input type="text" name="username" autofocus="false" placeholder="Email" value="{{ user.email }}" class="form-control"
                     required="" id="id_username">
             </div>
             <div class="form-group">
-                <input type="text" name="first_name" autofocus="false" value="{{ user.first_name }}" class="form-control"
+                <input type="text" name="first_name" autofocus="false" placeholder="First name" value="{{ user.first_name }}" class="form-control"
                     required="" id="id_first_name">
             </div>
             <div class="form-group">
-                <input type="text" name="last_name" autofocus="false" value="{{ user.last_name }}" class="form-control"
+                <input type="text" name="last_name" autofocus="false" placeholder="Last name" value="{{ user.last_name }}" class="form-control"
                     required="" id="id_last_name">
             </div>
 
