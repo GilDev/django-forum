@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
+from os.path import splitext
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -73,10 +74,10 @@ class RegisterTemplateView(TemplateView):
             return render(request, self.template_name)
 
         try:
-            user = User.objects.create_user(email=email, password=password)
+            user            = User.objects.create_user(email=email, password=password)
             user.first_name = email.split('@')[0]
-            user.last_name = ''
-            user.level = User.Level.NEWBIE
+            user.last_name  = ''
+            user.level      = User.Level.NEWBIE
             user.save()
         except Exception as e:
             messages.add_message(request, messages.ERROR, "An error occured: " + e)
@@ -101,6 +102,45 @@ class ResetPwdCompleteTemplateView(TemplateView):
 class ProfilTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/profil.html'
 
+    def post(self, request):
+        avatar     = request.FILES['profile_photo']
+        email      = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name  = request.POST.get('last_name')
+
+        # Check for empty fields
+        if not email or not first_name or not last_name or not avatar:
+            messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
+            return render(request, self.template_name)
+
+        # Check for valid email
+        try:
+            validate_email(email)
+        except:
+            messages.add_message(request, messages.ERROR, "The entered email is invalid.")
+            return render(request, self.template_name)
+
+        # Check for unused email
+        if request.user.email != email and User.objects.filter(email=email).count() > 0:
+            messages.add_message(request, messages.ERROR, "An account with this email already exists.")
+            return render(request, self.template_name)
+
+        avatar.name = email + splitext(avatar.name)[1]
+        try:
+            user            = request.user
+            user.email      = email
+            user.first_name = first_name
+            user.last_name  = last_name
+            user.avatar     = avatar
+            user.save()
+        except Exception as e:
+            messages.add_message(request, messages.ERROR, "An error occured: " + e)
+            return render(request, self.template_name)
+
+        messages.add_message(request, messages.SUCCESS, "Profile successfully updated.")
+
+        return HttpResponseRedirect(reverse('topic_list'))
+
 class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
     # TODO: ajouter paramètre get “page” et récupérer seulement 10 topics par page
@@ -120,7 +160,7 @@ class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
             new_comment = Comment(
                 topic   = context['topic'],
                 message = request.POST.get('reply'),
-                author  = User.objects.first(), # TODO: Use the currently logged in user
+                author  = request.user
             )
             new_comment.save()
 
@@ -153,7 +193,7 @@ class TopicCreateTemplateView(LoginRequiredMixin, TemplateView):
             new_topic = Topic(
                 title   = request.POST.get('title'),
                 message = request.POST.get('description'),
-                author  = User.objects.first(), # TODO: Use the currently logged in user
+                author  = request.user
             )
             new_topic.save()
 

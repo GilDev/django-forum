@@ -1,4 +1,6 @@
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
 
 import main.views
 
@@ -21,4 +23,4 @@ main_urlpatterns = [
 urlpatterns = [
     path('', main.views.HomeTemplateView.as_view(), name='home'),
     path('main/', include(main_urlpatterns)),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

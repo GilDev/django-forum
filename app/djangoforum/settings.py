@@ -154,7 +154,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-
 # Customizing authentication in Django
 # https://docs.djangoproject.com/fr/2.2/topics/auth/customizing/
 
