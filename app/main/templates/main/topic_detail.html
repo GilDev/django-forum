@@ -35,11 +35,11 @@
             <!-- Inner main header -->
             <div class="inner-main-header">
                 <span class="input-icon input-icon-sm ml-auto w-auto">
-                    <form>
+                    <form action="{% url 'topic_list' 'all' 1 %}" method="get">
                         <div class="form-row align-items-center">
                             <div class="col-auto">
                                 <input type="text" class="form-control bg-gray-200 border-gray-200 shadow-none"
-                                    placeholder="Search forum" />
+                                    placeholder="Search forum" name="search" />
                             </div>
                             <div class="col-auto">
                                 <input type="submit" class="btn btn-primary has-icon btn-block" value="Search" />

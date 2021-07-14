@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.core.validators import validate_email
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from os.path import splitext
 from django.shortcuts import get_object_or_404, render
@@ -13,9 +14,6 @@ from .models import Topic, Comment, User
 
 class HomeTemplateView(TemplateView):
     template_name = 'main/home.html'
-
-    # def get(self, request):
-    #     return HttpResponseRedirect(reverse('topic_list'))
 
 class LoginTemplateView(TemplateView):
     template_name = 'main/login.html'
@@ -230,20 +228,20 @@ class ProfilTemplateView(LoginRequiredMixin, TemplateView):
 class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
 
-    def get(self, request, filter="all", page=1):
+    def get(self, request, filter="all", page=1, search=""):
         if filter == "solved":
             topics = Topic.objects.filter(solved=True).order_by('-date')
         elif filter == "unsolved":
             topics = Topic.objects.filter(solved=False).order_by('-date')
         elif filter == "no_replies":
-            # TODO: Can probably be optimized
-            topics = []
-            all_topics = Topic.objects.order_by('date')
-            for topic in all_topics:
-                if topic.comment_set.count() == 0:
-                    topics.append(topic)
+            topics = Topic.objects.annotate(nb_comments=Count('comment')).filter(nb_comments=0).order_by('-date')
         else:
             topics = Topic.objects.order_by('-date')
+
+        search = request.GET.get('search')
+        if search:
+            topics = topics.filter(title__icontains=search) \
+                   | topics.filter(message__icontains=search)
 
         nb_per_page = 5
         nb_pages    = int((len(topics) - 1) / nb_per_page) + 1
@@ -261,11 +259,6 @@ class TopicListTemplateView(LoginRequiredMixin, TemplateView):
             'nb_pages': nb_pages,
         }
         return render(request, self.template_name, context)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['topics'] = Topic.objects.order_by('-date')[:10]
-    #     return context
 
 class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_detail.html'
