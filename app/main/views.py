@@ -229,12 +229,28 @@ class ProfilTemplateView(LoginRequiredMixin, TemplateView):
 
 class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
-    # TODO: ajouter paramètre get “page” et récupérer seulement 10 topics par page
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['topics'] = Topic.objects.order_by('-date')[:10]
-        return context
+    def get(self, request, page=1):
+        nb_per_page = 5
+        nb_pages    = int(Topic.objects.all().count() / nb_per_page) + 1
+        if page > nb_pages:
+            return HttpResponseRedirect(reverse('topic_list', kwargs={'page': nb_pages}))
+        elif page < 1:
+            return HttpResponseRedirect(reverse('topic_list', kwargs={'page': 1}))
+
+        topics_start = (page - 1) * nb_per_page
+        topics_end   = topics_start + nb_per_page
+        context = {
+            'topics': Topic.objects.order_by('-date')[topics_start:topics_end],
+            'current_page': page,
+            'nb_pages': nb_pages,
+        }
+        return render(request, self.template_name, context)
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['topics'] = Topic.objects.order_by('-date')[:10]
+    #     return context
 
 class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_detail.html'
