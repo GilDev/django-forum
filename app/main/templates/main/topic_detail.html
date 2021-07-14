@@ -103,13 +103,13 @@
                     <div class="card-body">
                         <div class="media forum-item">
                             <div class="card-link">
-                                {% if topic.author == request.user %}
+                                {% if comment.author == request.user %}
                                 <a href="{% url 'profile' %}">
                                 {% endif %}
                                     <img src="{{ comment.author.get_avatar_url }}" class="rounded-circle"
                                          width="50" alt="User" />
                                     <small class="d-block text-center text-muted">{{ comment.author.level }}</small>
-                                {% if topic.author == request.user %}
+                                {% if comment.author == request.user %}
                                 </a>
                                 {% endif %}
                             </div>
