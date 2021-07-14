@@ -128,12 +128,6 @@ class ResetPwdConfirmTemplateView(TemplateView):
             'email': email,
         }
 
-        # Check for valid email
-        try:
-            validate_email(email)
-        except:
-            return render(request, self.template_name, context)
-
         # Check if user exists
         if User.objects.filter(email=email).count() == 0:
             return render(request, self.template_name, context)
@@ -153,13 +147,6 @@ class ResetPwdConfirmTemplateView(TemplateView):
         # Check for empty fields
         if not email or not password or not confirm_password:
             messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
-            return render(request, self.template_name, context)
-
-        # Check for valid email
-        try:
-            validate_email(email)
-        except:
-            messages.add_message(request, messages.ERROR, "The entered email is invalid.")
             return render(request, self.template_name, context)
 
         # Check if user exists
