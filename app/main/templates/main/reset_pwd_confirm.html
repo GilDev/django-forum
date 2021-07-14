@@ -4,22 +4,31 @@
 
 {% block content %}
 <div class="col-6 mx-auto pt-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="border rounded p-4">
         <h3 class="mb-5 text-center">Change password</h3>
 
-        {% if validlink %}
+        {% if not validlink %}
         <p>
             The password reset link was invalid, possibly because it has already been used.
             Please request a new password reset.
         </p>
         {% else %}
-        <form>
+        <form action="{% url 'reset_pwd_confirm' email %}" method="post">
+            {% csrf_token %}
             <div class="form-group">
                 <input type="password" name="password" autofocus="false" placeholder="Password" class="form-control"
                     required="" id="id_password">
             </div>
             <div class="form-group">
-                <input type="confirm_password" name="confirm_password" autofocus="false" placeholder="Confirm Password"
+                <input type="password" name="confirm_password" autofocus="false" placeholder="Confirm Password"
                     class="form-control" required="" id="id_confirm_password">
             </div>
             <button type="submit" class="btn btn-lg btn-primary btn-round btn-block btn-loading shadow-sm mt-4">

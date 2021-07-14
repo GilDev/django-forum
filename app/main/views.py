@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.http import HttpResponseRedirect
 from os.path import splitext
@@ -13,8 +14,8 @@ from .models import Topic, Comment, User
 class HomeTemplateView(TemplateView):
     template_name = 'main/home.html'
 
-    def get(self, request):
-        return HttpResponseRedirect(reverse('topic_list'))
+    # def get(self, request):
+    #     return HttpResponseRedirect(reverse('topic_list'))
 
 class LoginTemplateView(TemplateView):
     template_name = 'main/login.html'
@@ -70,7 +71,7 @@ class RegisterTemplateView(TemplateView):
 
         # Check for password confirmation
         if password != confirm_password:
-            messages.add_message(request, messages.ERROR, "Password and confirmation doesn’t match.")
+            messages.add_message(request, messages.ERROR, "Password and confirmation don’t match.")
             return render(request, self.template_name)
 
         try:
@@ -90,11 +91,96 @@ class RegisterTemplateView(TemplateView):
 class ResetPwdFormTemplateView(TemplateView):
     template_name = 'main/reset_pwd_form.html'
 
+    def post(self, request):
+        email = request.POST.get('username')
+
+        # Check for valid email
+        try:
+            validate_email(email)
+        except:
+            messages.add_message(request, messages.ERROR, "The entered email is invalid.")
+            return render(request, self.template_name)
+
+        # Send mail if user exists
+        if User.objects.filter(email=email).count() > 0:
+            send_mail(
+                "Django Forum: new password request",
+                ("Please use the following link to reset your password: " +
+                 request.build_absolute_uri(reverse('reset_pwd_confirm', kwargs={'email': email})) +
+                 ". This link will be usable for 10 minutes, after which "
+                 "you will have to fill in the “Forgot password” form "
+                 "once more."),
+                "noreply@djangoforum.com",
+                [email],
+                fail_silently=False,
+            )
+
+        return HttpResponseRedirect(reverse('reset_pwd_done'))
+
+
 class ResetPwdDoneTemplateView(TemplateView):
     template_name = 'main/reset_pwd_done.html'
 
 class ResetPwdConfirmTemplateView(TemplateView):
     template_name = 'main/reset_pwd_confirm.html'
+
+    def get(self, request, email):
+        context = {
+            'validlink': False,
+            'email': email,
+        }
+
+        # Check for valid email
+        try:
+            validate_email(email)
+        except:
+            return render(request, self.template_name, context)
+
+        # Check if user exists
+        if User.objects.filter(email=email).count() == 0:
+            return render(request, self.template_name, context)
+
+        context['validlink'] = True
+        return render(request, self.template_name, context)
+
+    def post(self, request, email):
+        context = {
+            'validlink': False,
+            'email': email,
+        }
+
+        password         = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Check for empty fields
+        if not email or not password or not confirm_password:
+            messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
+            return render(request, self.template_name, context)
+
+        # Check for valid email
+        try:
+            validate_email(email)
+        except:
+            messages.add_message(request, messages.ERROR, "The entered email is invalid.")
+            return render(request, self.template_name, context)
+
+        # Check if user exists
+        if User.objects.filter(email=email).count() == 0:
+            messages.add_message(request, messages.ERROR, "The user doesn’t exists.")
+            return render(request, self.template_name, context)
+
+        context['validlink'] = True
+
+        # Check for password confirmation
+        if password != confirm_password:
+            messages.add_message(request, messages.ERROR, "Password and confirmation don’t match.")
+            return render(request, self.template_name, context)
+
+        user = User.objects.get(email=email)
+        user.set_password(password)
+        user.save()
+
+        return HttpResponseRedirect(reverse('reset_pwd_complete'))
 
 class ResetPwdCompleteTemplateView(TemplateView):
     template_name = 'main/reset_pwd_complete.html'
