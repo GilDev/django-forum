@@ -1,3 +1,7 @@
+import datetime
+from os.path import splitext
+import secrets
+
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -6,9 +10,9 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email
 from django.db.models import Count
 from django.http import HttpResponseRedirect
-from os.path import splitext
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import TemplateView
 from .models import Topic, Comment, User
 
@@ -99,12 +103,17 @@ class ResetPwdFormTemplateView(TemplateView):
             messages.add_message(request, messages.ERROR, "The entered email is invalid.")
             return render(request, self.template_name)
 
+        user = User.objects.filter(email=email).first()
         # Send mail if user exists
-        if User.objects.filter(email=email).count() > 0:
+        if user:
+            user.reset_pwd_time = timezone.now()
+            user.reset_pwd_hash = secrets.token_hex(nbytes=32)
+            user.save()
+
             send_mail(
                 "Django Forum: new password request",
                 ("Please use the following link to reset your password: " +
-                 request.build_absolute_uri(reverse('reset_pwd_confirm', kwargs={'email': email})) +
+                 request.build_absolute_uri(reverse('reset_pwd_confirm', kwargs={'hash': user.reset_pwd_hash})) +
                  ". This link will be usable for 10 minutes, after which "
                  "you will have to fill in the “Forgot password” form "
                  "once more."),
@@ -122,36 +131,47 @@ class ResetPwdDoneTemplateView(TemplateView):
 class ResetPwdConfirmTemplateView(TemplateView):
     template_name = 'main/reset_pwd_confirm.html'
 
-    def get(self, request, email):
+    def get(self, request, hash):
         context = {
             'validlink': False,
-            'email': email,
+            'hash': hash,
         }
 
         # Check if user exists
-        if User.objects.filter(email=email).count() == 0:
+        try:
+            user = User.objects.get(reset_pwd_hash=hash)
+        except User.DoesNotExist:
+            return render(request, self.template_name, context)
+
+        # Check if reset time interval is still valid
+        if timezone.now() > user.reset_pwd_time + datetime.timedelta(minutes=10):
             return render(request, self.template_name, context)
 
         context['validlink'] = True
         return render(request, self.template_name, context)
 
-    def post(self, request, email):
+    def post(self, request, hash):
         context = {
             'validlink': False,
-            'email': email,
+            'hash': hash,
         }
 
         password         = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
         # Check for empty fields
-        if not email or not password or not confirm_password:
+        if not password or not confirm_password:
             messages.add_message(request, messages.ERROR, "Please fill in all the fields.")
             return render(request, self.template_name, context)
 
         # Check if user exists
-        if User.objects.filter(email=email).count() == 0:
-            messages.add_message(request, messages.ERROR, "The user doesn’t exists.")
+        try:
+            user = User.objects.get(reset_pwd_hash=hash)
+        except User.DoesNotExist:
+            return render(request, self.template_name, context)
+
+        # Check if reset time interval is still valid
+        if timezone.now() > user.reset_pwd_time + datetime.timedelta(minutes=10):
             return render(request, self.template_name, context)
 
         context['validlink'] = True
@@ -161,8 +181,8 @@ class ResetPwdConfirmTemplateView(TemplateView):
             messages.add_message(request, messages.ERROR, "Password and confirmation don’t match.")
             return render(request, self.template_name, context)
 
-        user = User.objects.get(email=email)
         user.set_password(password)
+        user.reset_pwd_hash = ""
         user.save()
 
         return HttpResponseRedirect(reverse('reset_pwd_complete'))

@@ -68,6 +68,13 @@ class User(AbstractUser):
         choices=Level.choices,
         default=Level.NEWBIE,
     )
+    reset_pwd_time = models.DateTimeField(
+        null=True,
+    )
+    reset_pwd_hash = models.CharField(
+        max_length=32,
+        default="",
+    )
 
     username = None
     objects = UserManager()
