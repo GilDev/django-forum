@@ -230,18 +230,33 @@ class ProfilTemplateView(LoginRequiredMixin, TemplateView):
 class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
 
-    def get(self, request, page=1):
+    def get(self, request, filter="all", page=1):
+        if filter == "solved":
+            topics = Topic.objects.filter(solved=True).order_by('-date')
+        elif filter == "unsolved":
+            topics = Topic.objects.filter(solved=False).order_by('-date')
+        elif filter == "no_replies":
+            # TODO: Can probably be optimized
+            topics = []
+            all_topics = Topic.objects.order_by('date')
+            for topic in all_topics:
+                if topic.comment_set.count() == 0:
+                    topics.append(topic)
+        else:
+            topics = Topic.objects.order_by('-date')
+
         nb_per_page = 5
-        nb_pages    = int(Topic.objects.all().count() / nb_per_page) + 1
+        nb_pages    = int((len(topics) - 1) / nb_per_page) + 1
         if page > nb_pages:
-            return HttpResponseRedirect(reverse('topic_list', kwargs={'page': nb_pages}))
+            return HttpResponseRedirect(reverse('topic_list', kwargs={'filter': filter, 'page': nb_pages}))
         elif page < 1:
-            return HttpResponseRedirect(reverse('topic_list', kwargs={'page': 1}))
+            return HttpResponseRedirect(reverse('topic_list', kwargs={'filter': filter, 'page': 1}))
 
         topics_start = (page - 1) * nb_per_page
         topics_end   = topics_start + nb_per_page
         context = {
-            'topics': Topic.objects.order_by('-date')[topics_start:topics_end],
+            'topics': topics[topics_start:topics_end],
+            'filter': filter,
             'current_page': page,
             'nb_pages': nb_pages,
         }
