@@ -28,6 +28,17 @@
     <header>
         <nav class="navbar navbar-dark bg-dark">
             <span class="navbar-brand mb-0 h1"><a class="text-light" href="{% url 'home' %}">Django Forum</a></span>
+            {% if request.user.is_authenticated %}
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'profile' %}">
+                        <img src="{{ request.user.get_avatar_url }}" class="rounded-circle" width="40" alt="User" />
+                    </a>
+                    <a href="{% url 'profile' %}">
+                        <span class="navbar-text mx-2">{{ request.user.get_fullname }}</span>
+                    </a>
+                    <a class="btn btn-sm btn-secondary mr-sm-2" role="button" href="{% url 'logout' %}">Log Out</a>
+                </div>
+            {% endif %}
         </nav>
     </header>
 
