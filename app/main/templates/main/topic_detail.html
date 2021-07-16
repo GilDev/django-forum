@@ -128,7 +128,7 @@
                 {% endfor %}
                 {% if topic.comments %}<hr />{% endif %}
 
-                <form action="{% url 'topic_detail' topic.id %}" method="post">
+                <form method="post">
                     {% csrf_token %}
                     <div class="form-group mb-2">
                         <label for="reply" class="">Your message</label>

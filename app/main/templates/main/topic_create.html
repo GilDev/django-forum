@@ -73,7 +73,7 @@
                 <h3>Create new Topic</h3>
                 <hr />
 
-                <form action="{% url 'topic_create' %}" method="post">
+                <form method="post">
                     {% csrf_token %}
                     <div class="form-group mb-2">
                         <label for="title" class="">Your title</label>

@@ -21,7 +21,7 @@
             Please request a new password reset.
         </p>
         {% else %}
-        <form action="{% url 'reset_pwd_confirm' hash %}" method="post">
+        <form method="post">
             {% csrf_token %}
             <div class="form-group">
                 <input type="password" name="password" autofocus="false" placeholder="Password" class="form-control"
