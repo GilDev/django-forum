@@ -114,7 +114,7 @@
                             {% if page == current_page %}
                                 <li class="page-item active"><span class="page-link">{{ page }}</span></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="{% url 'topic_list' filter page %}">{{ page }}</a></li>
+                                <li class="page-item"><a class="page-link" href="{% url 'topic_list' filter page %}?filter={{ filter }}">{{ page }}</a></li>
                             {% endif %}
                         {% endfor %}
 

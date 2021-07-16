@@ -75,7 +75,7 @@
                                 {% endif %}
                                     <img src="{{ topic.author.get_avatar_url }}" class="rounded-circle"
                                          width="50" alt="User" />
-                                    <small class="d-block text-center text-muted">{{ topic.author.level }}</small>
+                                    <small class="d-block text-center text-muted">{{ topic.author.get_level_display }}</small>
                                 {% if topic.author == request.user %}
                                 </a>
                                 {% endif %}
@@ -98,7 +98,7 @@
                 </div>
                 <hr />
 
-                {% for comment in topic.comments %}
+                {% for comment in topic.comment_set.all %}
                 <div class="card mb-2">
                     <div class="card-body">
                         <div class="media forum-item">
@@ -108,7 +108,7 @@
                                 {% endif %}
                                     <img src="{{ comment.author.get_avatar_url }}" class="rounded-circle"
                                          width="50" alt="User" />
-                                    <small class="d-block text-center text-muted">{{ comment.author.level }}</small>
+                                    <small class="d-block text-center text-muted">{{ comment.author.get_level_display }}</small>
                                 {% if comment.author == request.user %}
                                 </a>
                                 {% endif %}

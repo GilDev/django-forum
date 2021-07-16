@@ -183,6 +183,7 @@ class ResetPwdConfirmTemplateView(TemplateView):
 
         user.set_password(password)
         user.reset_pwd_hash = ""
+        user.reset_pwd_time = None
         user.save()
 
         return HttpResponseRedirect(reverse('reset_pwd_complete'))
@@ -216,7 +217,7 @@ class ProfileTemplateView(LoginRequiredMixin, TemplateView):
             messages.add_message(request, messages.ERROR, "An account with this email already exists.")
             return render(request, self.template_name)
 
-        avatar.name = email + splitext(avatar.name)[1]
+        avatar.name = email + splitext(avatar.name)[-1]
         try:
             user            = request.user
             user.email      = email
@@ -235,7 +236,7 @@ class ProfileTemplateView(LoginRequiredMixin, TemplateView):
 class TopicListTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_list.html'
 
-    def get(self, request, filter="all", page=1, search=""):
+    def get(self, request, filter="all", page=1):
         if filter == "solved":
             topics = Topic.objects.filter(solved=True).order_by('-date')
         elif filter == "unsolved":
@@ -292,11 +293,6 @@ class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         topic = get_object_or_404(Topic, pk=self.kwargs['pk'])
-        topic.author.level = topic.author.Level(topic.author.level).label
-
-        topic.comments = topic.comment_set.all()
-        for comment in topic.comments:
-            comment.author.level = comment.author.Level(comment.author.level).label
 
         context['topic'] = topic
         return context
