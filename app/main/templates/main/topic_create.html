@@ -72,12 +72,12 @@
                 <form method="post">
                     {% csrf_token %}
                     <div class="form-group mb-2">
-                        <label for="title" class="">Your title</label>
-                        <input type="text" class="form-control" id="title" name="title"/>
+                        <label for="{{ form.title.id_for_label }}" class="">{{ form.title.label }}</label>
+                        <input type="text" class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" {% if form.title.value %}value="{{ form.title.value }}" {% endif %}/>
                     </div>
                     <div class="form-group mb-2">
-                        <label for="description" class="">Your message</label>
-                        <textarea class="form-control" id="description" name="description" style="height: 145px;"></textarea>
+                        <label for="{{ form.message.id_for_label }}" class="">{{ form.message.label }}</label>
+                        <textarea class="form-control" id="{{ form.message.id_for_label }}" name="{{ form.message.name }}" style="height: 145px;">{% if form.title.value %}{{ form.message.value }}{% endif %}</textarea>
                     </div>
                     <button type="submit" class="btn btn-primary mb-2">Create</button>
                 </form>

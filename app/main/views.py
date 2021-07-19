@@ -15,6 +15,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.base import ContextMixin
+
+from .forms import TopicForm
 from .models import Topic, Comment, User
 
 class HomeTemplateView(TemplateView):
@@ -292,11 +294,12 @@ class TopicCreateTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_create.html'
 
     def post(self, request):
-        if request.POST.get('title') and request.POST.get('description'):
+        form = TopicForm(request.POST)
+        if form.is_valid():
             new_topic = Topic(
-                title   = request.POST.get('title'),
-                message = request.POST.get('description'),
-                author  = request.user
+                title   = form.cleaned_data['title'],
+                message = form.cleaned_data['message'],
+                author  = request.user,
             )
             new_topic.save()
 
@@ -305,7 +308,12 @@ class TopicCreateTemplateView(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse('topic_detail', args=(new_topic.id,)))
         else:
             messages.add_message(request, messages.ERROR, "Please enter a title and a message.")
-            return render(request, self.template_name)
+            return render(request, self.template_name, {'form': form})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = TopicForm()
+        return context
 
 class ReactTemplateView(TemplateView):
     template_name = 'main/react.html'
