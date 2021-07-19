@@ -20,9 +20,9 @@
                 <div class="p-3 h-100" data-simplebar="init">
                     <nav class="nav nav-pills nav-gap-y-1 flex-column">
                         <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">All Threads</a>
-                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">Solved</a>
-                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">Unsolved</a>
-                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">No replies yet</a>
+                        <a href="{% url 'topic_list' %}?filter=solved" class="nav-link nav-link-faded has-icon">Solved</a>
+                        <a href="{% url 'topic_list' %}?filter=unsolved" class="nav-link nav-link-faded has-icon">Unsolved</a>
+                        <a href="{% url 'topic_list' %}?filter=no_replies" class="nav-link nav-link-faded has-icon">No replies yet</a>
                     </nav>
                 </div>
             </div>
