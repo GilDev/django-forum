@@ -13,7 +13,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
+from django.views.generic.base import ContextMixin
 from .models import Topic, Comment, User
 
 class HomeTemplateView(TemplateView):
@@ -233,40 +234,36 @@ class ProfileTemplateView(LoginRequiredMixin, TemplateView):
 
         return HttpResponseRedirect(reverse('topic_list'))
 
-class TopicListTemplateView(LoginRequiredMixin, TemplateView):
+class TopicListView(LoginRequiredMixin, ListView):
     template_name = 'main/topic_list.html'
+    model = Topic
+    paginate_by = 5
 
-    def get(self, request, filter="all", page=1):
-        if filter == "solved":
-            topics = Topic.objects.filter(solved=True).order_by('-date')
-        elif filter == "unsolved":
-            topics = Topic.objects.filter(solved=False).order_by('-date')
-        elif filter == "no_replies":
-            topics = Topic.objects.annotate(nb_comments=Count('comment')).filter(nb_comments=0).order_by('-date')
-        else:
-            topics = Topic.objects.order_by('-date')
+    def get_queryset(self):
+        self.filter = self.request.GET.get('filter', 'all')
+        self.search = self.request.GET.get('search', '')
+        page        = int(self.request.GET.get('page', '1'))
 
-        search = request.GET.get('search')
-        if search:
-            topics = topics.filter(title__icontains=search) \
-                   | topics.filter(message__icontains=search)
+        topics = Topic.objects.order_by('-date')
+        if self.filter == "solved":
+            topics = topics.filter(solved=True)
+        elif self.filter == "unsolved":
+            topics = topics.filter(solved=False)
+        elif self.filter == "no_replies":
+            topics = topics.annotate(nb_comments=Count('comment')).filter(nb_comments=0)
 
-        nb_per_page = 5
-        nb_pages    = int((len(topics) - 1) / nb_per_page) + 1
-        if page > nb_pages:
-            return HttpResponseRedirect(reverse('topic_list', kwargs={'filter': filter, 'page': nb_pages}))
-        elif page < 1:
-            return HttpResponseRedirect(reverse('topic_list', kwargs={'filter': filter, 'page': 1}))
+        # TODO: Use Q()
+        if self.search:
+            topics = topics.filter(title__icontains=self.search) \
+                   | topics.filter(message__icontains=self.search)
 
-        topics_start = (page - 1) * nb_per_page
-        topics_end   = topics_start + nb_per_page
-        context = {
-            'topics': topics[topics_start:topics_end],
-            'filter': filter,
-            'current_page': page,
-            'nb_pages': nb_pages,
-        }
-        return render(request, self.template_name, context)
+        return topics
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filter'] = self.filter
+        context['search'] = self.search
+        return context
 
 class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_detail.html'

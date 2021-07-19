@@ -18,10 +18,10 @@
             <div class="inner-sidebar-body p-0">
                 <div class="p-3 h-100" data-simplebar="init">
                     <nav class="nav nav-pills nav-gap-y-1 flex-column">
-                        <a href="{% url 'topic_list' 'all' 1 %}" class="nav-link nav-link-faded has-icon{% if filter == 'all' %} active{% endif %}">All Threads</a>
-                        <a href="{% url 'topic_list' 'solved' 1 %}" class="nav-link nav-link-faded has-icon{% if filter == 'solved' %} active{% endif %}">Solved</a>
-                        <a href="{% url 'topic_list' 'unsolved' 1 %}" class="nav-link nav-link-faded has-icon{% if filter == 'unsolved' %} active{% endif %}">Unsolved</a>
-                        <a href="{% url 'topic_list' 'no_replies' 1 %}" class="nav-link nav-link-faded has-icon{% if filter == 'no_replies' %} active{% endif %}">No replies yet</a>
+                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon{% if filter == 'all' %} active{% endif %}">All Threads</a>
+                        <a href="{% url 'topic_list' %}?filter=solved" class="nav-link nav-link-faded has-icon{% if filter == 'solved' %} active{% endif %}">Solved</a>
+                        <a href="{% url 'topic_list' %}?filter=unsolved" class="nav-link nav-link-faded has-icon{% if filter == 'unsolved' %} active{% endif %}">Unsolved</a>
+                        <a href="{% url 'topic_list' %}?filter=no_replies" class="nav-link nav-link-faded has-icon{% if filter == 'no_replies' %} active{% endif %}">No replies yet</a>
                     </nav>
                 </div>
             </div>
@@ -61,7 +61,7 @@
 
             <!-- Forum List -->
             <div class="inner-main-body p-2 p-sm-3 collapse forum-content show">
-                {% for topic in topics %}
+                {% for topic in topic_list %}
                 <div class="card mb-2">
                     <div class="card-body p-2 p-sm-3">
                         <div class="media forum-item">
@@ -93,42 +93,41 @@
                 {% endfor %}
 
                 <!-- Pagination -->
-                {% if topics %}
+                {% if is_paginated %}
                     <ul class="pagination pagination-sm pagination-circle justify-content-center my-4">
-                        {% if current_page == 1 %}
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link has-icon" href="?filter={{ filter }}&search={{ search }}&page={{ page_obj.previous_page_number }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% else %}
                             <li class="page-item disabled">
                                 <span class="page-link has-icon">
                                     <i class="fas fa-chevron-left"></i>
                                 </span>
-                            </li>
-                        {% else %}
-                            <li class="page-item">
-                                <a class="page-link has-icon" href="{% url 'topic_list' filter current_page|add:-1 %}">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
                             </li>
                         {% endif %}
 
-                        {% load filters %}
-                        {% for page in 1|range:nb_pages %}
-                            {% if page == current_page %}
+                        {% for page in paginator.page_range %}
+                            {% if page == page_obj.number %}
                                 <li class="page-item active"><span class="page-link">{{ page }}</span></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="{% url 'topic_list' filter page %}?filter={{ filter }}">{{ page }}</a></li>
+                                <li class="page-item"><a class="page-link" href="?filter={{ filter }}&search={{ search }}&page={{ page }}">{{ page }}</a></li>
                             {% endif %}
                         {% endfor %}
 
-                        {% if current_page == nb_pages %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link has-icon" href="?filter={{ filter }}&search={{ search }}&page={{ page_obj.next_page_number }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% else %}
                             <li class="page-item disabled">
                                 <span class="page-link has-icon">
                                     <i class="fas fa-chevron-right"></i>
                                 </span>
-                            </li>
-                        {% else %}
-                            <li class="page-item">
-                                <a class="page-link has-icon" href="{% url 'topic_list' filter current_page|add:1 %}">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
                             </li>
                         {% endif %}
                     </ul>

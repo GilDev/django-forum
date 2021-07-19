@@ -19,10 +19,10 @@
             <div class="inner-sidebar-body p-0">
                 <div class="p-3 h-100" data-simplebar="init">
                     <nav class="nav nav-pills nav-gap-y-1 flex-column">
-                        <a href="{% url 'topic_list' 'all' 1 %}" class="nav-link nav-link-faded has-icon">All Threads</a>
-                        <a href="{% url 'topic_list' 'solved' 1 %}" class="nav-link nav-link-faded has-icon">Solved</a>
-                        <a href="{% url 'topic_list' 'unsolved' 1 %}" class="nav-link nav-link-faded has-icon">Unsolved</a>
-                        <a href="{% url 'topic_list' 'no_replies' 1 %}" class="nav-link nav-link-faded has-icon">No replies yet</a>
+                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">All Threads</a>
+                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">Solved</a>
+                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">Unsolved</a>
+                        <a href="{% url 'topic_list' %}" class="nav-link nav-link-faded has-icon">No replies yet</a>
                     </nav>
                 </div>
             </div>
@@ -35,7 +35,7 @@
             <!-- Inner main header -->
             <div class="inner-main-header">
                 <span class="input-icon input-icon-sm ml-auto w-auto">
-                    <form action="{% url 'topic_list' 'all' 1 %}" method="get">
+                    <form action="{% url 'topic_list' %}" method="get">
                         <div class="form-row align-items-center">
                             <div class="col-auto">
                                 <input type="text" class="form-control bg-gray-200 border-gray-200 shadow-none"
