@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.base import ContextMixin
 from .models import Topic, Comment, User
 
@@ -252,7 +252,6 @@ class TopicListView(LoginRequiredMixin, ListView):
         elif self.filter == "no_replies":
             topics = topics.annotate(nb_comments=Count('comment')).filter(nb_comments=0)
 
-        # TODO: Use Q()
         if self.search:
             topics = topics.filter(title__icontains=self.search) \
                    | topics.filter(message__icontains=self.search)
@@ -265,15 +264,17 @@ class TopicListView(LoginRequiredMixin, ListView):
         context['search'] = self.search
         return context
 
-class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
+class TopicDetailTemplateView(LoginRequiredMixin, DetailView):
     template_name = 'main/topic_detail.html'
+    model = Topic
 
     def post(self, request, pk):
-        context = self.get_context_data()
+        self.object = self.get_object()
 
-        if request.POST.get('reply'):
+        reply = request.POST.get('reply')
+        if reply:
             new_comment = Comment(
-                topic   = context['topic'],
+                topic   = self.object,
                 message = request.POST.get('reply'),
                 author  = request.user
             )
@@ -284,16 +285,8 @@ class TopicDetailTemplateView(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse('topic_detail', args=(pk,)))
         else:
             messages.add_message(request, messages.ERROR, "Please enter a comment before sending.")
+            context = self.get_context_data(object=self.object)
             return render(request, self.template_name, context)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        topic = get_object_or_404(Topic, pk=self.kwargs['pk'])
-
-        context['topic'] = topic
-        return context
-
 
 class TopicCreateTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'main/topic_create.html'
