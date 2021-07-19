@@ -266,7 +266,7 @@ class TopicListView(LoginRequiredMixin, ListView):
         context['search'] = self.search
         return context
 
-class TopicDetailTemplateView(LoginRequiredMixin, DetailView):
+class TopicDetailView(LoginRequiredMixin, DetailView):
     template_name = 'main/topic_detail.html'
     model = Topic
 

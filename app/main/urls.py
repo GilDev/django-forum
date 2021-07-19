@@ -15,7 +15,7 @@ main_urlpatterns = [
     path('reset_pwd_complete/', main.views.ResetPwdCompleteTemplateView.as_view(), name='reset_pwd_complete'),
     path('profile/', main.views.ProfileTemplateView.as_view(), name='profile'),
     path('topics/', main.views.TopicListView.as_view(), name='topic_list'),
-    path('topics/topic_<int:pk>/', main.views.TopicDetailTemplateView.as_view(), name='topic_detail'),
+    path('topics/topic_<int:pk>/', main.views.TopicDetailView.as_view(), name='topic_detail'),
     path('topics/new/', main.views.TopicCreateTemplateView.as_view(), name='topic_create'),
     path('react/', main.views.ReactTemplateView.as_view(), name='react'),
 ]
